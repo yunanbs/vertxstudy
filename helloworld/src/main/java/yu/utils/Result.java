@@ -10,7 +10,7 @@ public class Result
     private String error;
     private String tag;
 
-    public Result()
+    private Result()
     {
     }
 
