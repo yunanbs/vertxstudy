@@ -2,17 +2,18 @@ package yu.route;
 
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.rx.java.RxHelper;
 import rx.Observable;
 import yu.db.MysqlPool;
-import yu.utils.Result;
+import yu.utils.ActionResult;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by yunan on 2017/1/21.
@@ -33,57 +34,37 @@ public class Index
             add(HttpMethod.POST);
         }}));
 
-        mrouter.post("/hello").handler(this::hello);
-        mrouter.get("/add").handler(this::add);
-        mrouter.get("/getdb").handler(this::getdb);
+        mrouter.get("/testquery").handler(this::testquery);
     }
 
-    private void hello(RoutingContext ctx){
-        JsonObject reqparams = ctx.getBodyAsJson();
-        Result result= new Result();
-        String name = "default";
-        try{
-            name = reqparams.getString("username");
-            result = new Result("true",String.format("hello %s",name),"","");
-        }catch (Exception ex){
-            result = new Result("false",String.format("hello %s",name),ex.getMessage(),"");
-        }finally
-        {
-            createres(ctx, Json.encodePrettily(result));
-        }
 
 
-    }
+    private void testquery(RoutingContext ctx){
+        MysqlPool.mysqlpool.getConnection(ar->{
+            if(ar.failed())
+                ctx.response().end(Json.encodePrettily(ActionResult.getresult(false,ar.cause().getMessage(),"")));
 
-    private void add(RoutingContext ctx){
-        Result result = new Result();
-        try{
-            int a = Integer.parseInt(ctx.request().getParam("x"));
-            int b = Integer.parseInt(ctx.request().getParam("y"));
+            List<Integer> r = new ArrayList<Integer>();
+            final ActionResult[] actionResult = {null};
 
-            result = new Result("true",String.valueOf(a+b),"","");
-        }catch (Exception ex){
-            result = new Result("false","",ex.getMessage(),"");
-        }finally
-        {
-            createres(ctx, Json.encodePrettily(result));
-        }
-    }
-
-    private void getdb(RoutingContext ctx){
-        Observable rs = MysqlPool.GetClient("select count(*) from city")
-                .concatMap(ar->MysqlPool.GetClient("select * from country"));
-        rs.subscribe(
-                ar->ctx.response().end(Json.encodePrettily(((ResultSet)ar).getRows()))
-        );
-
-
-    }
-
-    private static  void createres(RoutingContext ctx,String result){
-        ctx.response().setChunked(true);
-        ctx.response().write(result);
-        ctx.response().end();
+            MysqlPool.query(ar.result(),"select * from country")
+                    .concatMap(res -> {
+                        r.add(res.getRows().size());
+                        return MysqlPool.query(ar.result(),"select * from city");
+                    }).subscribe(
+                        res->{
+                            r.add(res.getRows().size());
+                            actionResult[0] =ActionResult.getresult(true,Json.encodePrettily(r),"");
+                        },
+                        e->{
+                            actionResult[0] =ActionResult.getresult(false,e.getMessage(),"");
+                        },
+                        ()->{
+                            ar.result().close();
+                            ctx.response().end(Json.encodePrettily(actionResult[0]));
+                        }
+                    );
+        });
     }
 
 }
