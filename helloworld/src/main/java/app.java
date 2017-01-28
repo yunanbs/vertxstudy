@@ -4,12 +4,11 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import yu.db.MysqlPool;
-import yu.log.Log;
 import yu.route.Index;
-
-import java.util.logging.Logger;
 
 /**
  * Created by yunan on 2017/1/21.
@@ -19,7 +18,7 @@ public class app extends AbstractVerticle
     private static  Vertx vertx;
     private static HttpServer server;
     private static Router router;
-    private static Logger log  = Log.getlog("app");
+    private static Logger log  = LoggerFactory.getLogger(app.class);
     public static void main(String[] args) {
         long st = System.currentTimeMillis();
         log.info("start app......");
