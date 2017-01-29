@@ -54,5 +54,7 @@
     <orderEntry type="library" name="Maven: de.javakaffee:kryo-serializers:0.37" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-hazelcast:3.3.3" level="project" />
+    <orderEntry type="library" name="Maven: com.hazelcast:hazelcast:3.6.3" level="project" />
   </component>
 </module>

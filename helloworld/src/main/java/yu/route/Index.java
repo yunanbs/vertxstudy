@@ -1,12 +1,17 @@
 package yu.route;
 
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.SessionHandler;
+import io.vertx.ext.web.sstore.ClusteredSessionStore;
+import io.vertx.ext.web.sstore.SessionStore;
 import io.vertx.rx.java.RxHelper;
 import rx.Observable;
 import yu.db.MysqlPool;
@@ -23,19 +28,24 @@ public class Index
 {
     private static Router mrouter;
 
-    private Index(){}
+    public Index(Vertx vertx){
+        mrouter = Router.router(vertx);
 
-    public Index(Router router){
-        mrouter = router;
-
-        mrouter.route("/*").handler(BodyHandler.create());
-        mrouter.route("/").handler(CorsHandler.create("*").allowedMethods( new HashSet<HttpMethod>(){{
+        mrouter.route().handler(BodyHandler.create());
+        mrouter.route().handler(CorsHandler.create("*").allowedMethods( new HashSet<HttpMethod>(){{
             add(HttpMethod.GET);
             add(HttpMethod.POST);
             add(HttpMethod.POST);
         }}));
+        mrouter.route().handler(CookieHandler.create());
+        SessionStore cstore = ClusteredSessionStore.create(vertx);
+        mrouter.route().handler(SessionHandler.create(cstore));
 
         mrouter.get("/testquery").handler(this::testquery);
+    }
+
+    public static  Router getrouter(){
+        return  mrouter;
     }
 
 
