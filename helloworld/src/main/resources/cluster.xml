@@ -32,6 +32,8 @@
             </multicast>
             <tcp-ip enabled="true">
                 <interface>192.168.31.179</interface>
+                <interface>192.168.40.129</interface>
+                <interface>192.168.40.130</interface>
             </tcp-ip>
             <aws enabled="false">
                 <access-key>my-access-key</access-key>

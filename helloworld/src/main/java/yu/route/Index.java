@@ -6,6 +6,7 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -28,27 +29,27 @@ public class Index
 {
     private static Router mrouter;
 
-    public Index(Vertx vertx){
-        mrouter = Router.router(vertx);
-
-        mrouter.route().handler(BodyHandler.create());
-        mrouter.route().handler(CorsHandler.create("*").allowedMethods( new HashSet<HttpMethod>(){{
-            add(HttpMethod.GET);
-            add(HttpMethod.POST);
-            add(HttpMethod.POST);
-        }}));
-        mrouter.route().handler(CookieHandler.create());
-        SessionStore cstore = ClusteredSessionStore.create(vertx);
-        mrouter.route().handler(SessionHandler.create(cstore));
-
-        mrouter.get("/testquery").handler(this::testquery);
-    }
-
     public static  Router getrouter(){
         return  mrouter;
     }
 
+    public Index(Vertx vertx){
+        SessionStore cstore = ClusteredSessionStore.create(vertx);
 
+        mrouter = Router.router(vertx);
+        mrouter.route().handler(BodyHandler.create());
+        mrouter.route().handler(CorsHandler.create("*").allowedMethods( new HashSet<HttpMethod>(){{
+            add(HttpMethod.GET);
+            add(HttpMethod.POST);
+            add(HttpMethod.OPTIONS);
+        }}));
+        mrouter.route().handler(CookieHandler.create());
+        mrouter.route().handler(SessionHandler.create(cstore));
+
+        mrouter.get("/testquery").handler(this::testquery);
+        mrouter.get("/readsession").handler(this::getsession);
+        mrouter.get("/setsession").handler(this::setsession);
+    }
 
     private void testquery(RoutingContext ctx){
         MysqlPool.mysqlpool.getConnection(ar->{
@@ -100,6 +101,17 @@ public class Index
             );
 
         });
+    }
+
+    private void setsession(RoutingContext ctx){
+        Session s = ctx.session();
+        s.put("name","yunan");
+        ctx.response().end("session ok");
+    }
+
+    private void getsession(RoutingContext ctx){
+        Session s = ctx.session();
+        ctx.response().end(s.get("name").toString());
     }
 
 }

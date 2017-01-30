@@ -11,7 +11,7 @@ import yu.db.MysqlPool;
  */
 public class baseservice
 {
-    public static Observable<ResultSet> testquery(SQLConnection conn, String sql){
+    public static Observable<ResultSet> testmutilquery(SQLConnection conn, String sql){
         return MysqlPool.query(conn,sql);
     }
 }
