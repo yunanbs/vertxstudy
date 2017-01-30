@@ -37,12 +37,6 @@
 
         <dependency>
             <groupId>io.vertx</groupId>
-            <artifactId>vertx-mysql-postgresql-client</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vertx</groupId>
             <artifactId>vertx-jdbc-client</artifactId>
             <version>3.3.3</version>
         </dependency>
@@ -57,13 +51,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-rx-java</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/io.vertx/vertx-sync -->
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-sync</artifactId>
             <version>3.3.3</version>
         </dependency>
 

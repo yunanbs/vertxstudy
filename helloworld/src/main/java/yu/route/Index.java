@@ -33,7 +33,7 @@ public class Index
         return  mrouter;
     }
 
-    public Index(Vertx vertx){
+    public static void IniRouter(Vertx vertx){
         SessionStore cstore = ClusteredSessionStore.create(vertx);
 
         mrouter = Router.router(vertx);
@@ -46,12 +46,12 @@ public class Index
         mrouter.route().handler(CookieHandler.create());
         mrouter.route().handler(SessionHandler.create(cstore));
 
-        mrouter.get("/testquery").handler(this::testquery);
-        mrouter.get("/readsession").handler(this::getsession);
-        mrouter.get("/setsession").handler(this::setsession);
+        mrouter.get("/testquery").handler(Index::testquery);
+        mrouter.get("/readsession").handler(Index::getsession);
+        mrouter.get("/setsession").handler(Index::setsession);
     }
 
-    private void testquery(RoutingContext ctx){
+    public static void testquery(RoutingContext ctx){
         MysqlPool.mysqlpool.getConnection(ar->{
             if(ar.failed())
                 ctx.response().end(Json.encodePrettily(ActionResult.getresult(false,ar.cause().getMessage(),"")));
@@ -103,13 +103,13 @@ public class Index
         });
     }
 
-    private void setsession(RoutingContext ctx){
+    public static void setsession(RoutingContext ctx){
         Session s = ctx.session();
         s.put("name","yunan");
         ctx.response().end("session ok");
     }
 
-    private void getsession(RoutingContext ctx){
+    public static void getsession(RoutingContext ctx){
         Session s = ctx.session();
         ctx.response().end(s.get("name").toString());
     }

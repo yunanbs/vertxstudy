@@ -15,7 +15,7 @@ import yu.route.Index;
 /**
  * Created by yunan on 2017/1/21.
  */
-public class app extends AbstractVerticle
+public class app
 {
     //private static  Vertx vertx;
     //private static HttpServer server;
@@ -43,28 +43,16 @@ public class app extends AbstractVerticle
     {
         long st = System.currentTimeMillis();
         log.info("start app......");
-        //System.out.println("start app......");
-
-        Config config = new Config();
         HazelcastClusterManager mgr = new HazelcastClusterManager();
-
         Vertx.clusteredVertx(new VertxOptions().setClusterManager(mgr).setWorkerPoolSize(1000).setClustered(true),res->{
             Vertx vertx = res.result();
             vertx.deployVerticle(app.class.getName(), new DeploymentOptions().setInstances(2 * Runtime.getRuntime().availableProcessors()));
             HttpServer server = vertx.createHttpServer(new HttpServerOptions().setPort(8000));
-            //Router router = Router.router(vertx);
-            Index index = new Index(vertx);
+            Index.IniRouter(vertx);
             MysqlPool.IniDB(vertx);
             server.requestHandler(Index.getrouter()::accept).listen();
             long ed = System.currentTimeMillis();
-            //System.out.println(String.format("app start ok %d ms",ed-st));
             log.info(String.format("app start ok %d ms", ed - st));
         });
-
-
-        //vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(1000));
-
-
-
     }
 }
